@@ -6,7 +6,7 @@ from config import Config
 
 bot = Bot(
     token=Config.TELEGRAM_BOT_TOKEN,
-    # default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN)
+    default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN)
 )
 
 dp = Dispatcher()

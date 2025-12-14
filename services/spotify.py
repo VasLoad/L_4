@@ -58,15 +58,15 @@ class SpotifyAlbum:
     release_date: str = EMPTY_CONTENT_TEXT
     total_tracks: Union[int, str] = 0
 
+    @property
+    def image_url(self) -> Optional[str]:
+        if self.images:
+            return self.images[0].url
+
+        return None
+
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "SpotifyAlbum":
-        images = data.get("images")
-
-        if len(images) > 0:
-            image_data = images[0]
-        else:
-            image_data = None
-
         return cls(
             album_type=data.get("album_type"),
             artists=[SpotifyArtist.from_dict(artist) for artist in data.get("artists", [])],
@@ -82,43 +82,42 @@ class SpotifyAlbum:
 
 @dataclass
 class SpotifyTrack:
+    id: str = ""
     name: str = EMPTY_CONTENT_TEXT
     artists: list[SpotifyArtist] = field(default_factory=list)
     album: SpotifyAlbum = field(default_factory=SpotifyAlbum)
-    release: str = EMPTY_CONTENT_TEXT
-    duration: Union[int, str] = 0
+    duration_ms: Union[int, str] = 0
     url: str = EMPTY_CONTENT_TEXT
 
     @property
-    def duration_decorated(self) -> Optional[str]:
-        if self.duration:
-            return convert_time_from_milliseconds(self.duration)
+    def duration(self) -> str:
+        if self.duration_ms:
+            return convert_time_from_milliseconds(self.duration_ms)
 
-        return None
+        return EMPTY_CONTENT_TEXT
 
     @property
-    def release_date(self) -> Optional[str]:
+    def release_date(self) -> str:
         if self.album:
             return self.album.release_date
 
-        return None
+        return EMPTY_CONTENT_TEXT
 
     @property
     def image_url(self) -> Optional[str]:
         if self.album:
-            if self.album.images:
-                if len(self.album.images) > 0:
-                    return self.album.images[0].url
+            return self.album.image_url
 
         return None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "SpotifyTrack":
         return cls(
+            id=data.get("id"),
             name=data.get("name"),
             artists=[SpotifyArtist.from_dict(artist) for artist in data.get("artists", [])],
             album=SpotifyAlbum.from_dict(data.get("album")),
-            duration=data.get("duration"),
+            duration_ms=data.get("duration_ms"),
             url=data.get("external_urls", {}).get("spotify")
         )
 
@@ -162,7 +161,7 @@ class SpotifyClient:
         return b64_auth
 
     @cached_property
-    def headers(self) -> dict[str, str]:
+    def __auth_headers(self) -> dict[str, str]:
         headers = {
             "Authorization": f"Basic {self.auth_data}"
         }
@@ -170,7 +169,7 @@ class SpotifyClient:
         return headers
 
     @cached_property
-    def data(self) -> dict[str, str]:
+    def __auth_data(self) -> dict[str, str]:
         data = {
             "grant_type": "client_credentials"
         }
@@ -181,45 +180,75 @@ class SpotifyClient:
     def __access_token(self):
         response = requests.post(
             self.auth_url,
-            data=self.data,
-            headers=self.headers
+            data=self.__auth_data,
+            headers=self.__auth_headers
         )
 
         return response.json()["access_token"]
 
-    def search_track(self, name: str, limit: Optional[int] = None) -> Optional[dict[str, Any]]:
-        self.search(name, type=ContentType.TRACK, limit=limit if limit else 0)
-
-    def search_album(self, name: str, limit: Optional[int] = None) -> Optional[dict[str, Any]]:
-        self.search(name, type=ContentType.ALBUM, limit=limit if limit else 0)
-
-    def search(self, track_name: str, type: ContentType = ContentType.TRACK, limit: int = 1) -> Optional[dict[str, Any]]:
-        token = self.__access_token
-
+    @property
+    def __search_headers(self) -> dict[str, Any]:
         headers = {
-            "Authorization": f"Bearer {token}"
+            "Authorization": f"Bearer {self.__access_token}"
         }
 
+        return headers
+
+    def search_by_id(self, id: str, type: ContentType) -> Union[SpotifyTrack, SpotifyAlbum]:
+        search_type_str = "tracks" if type is ContentType.TRACK else "albums"
+
+        response = requests.get(
+            f"https://api.spotify.com/v1/{search_type_str}/{id}",
+            headers=self.__search_headers
+        )
+
+        if type is ContentType.TRACK:
+            return SpotifyTrack.from_dict(response.json())
+        else:
+            return SpotifyAlbum.from_dict(response.json())
+
+    def search_track(self, name: str, limit: Optional[int] = None) -> list[SpotifyTrack]:
+        return self.search(name, type=ContentType.TRACK, limit=limit)
+
+    def search_track_by_id(self, track_id: str) -> SpotifyTrack:
+        return self.search_by_id(track_id, type=ContentType.TRACK)
+
+    def search_album(self, name: str, limit: Optional[int] = None) -> list[SpotifyAlbum]:
+        return self.search(name, type=ContentType.ALBUM, limit=limit)
+
+    def search_album_by_id(self, album_id: str) -> SpotifyAlbum:
+        return self.search_by_id(album_id, type=ContentType.ALBUM)
+
+    def search(self, track_name: str, type: ContentType = ContentType.TRACK, limit: Optional[int] = None) -> list[Union[SpotifyTrack, SpotifyAlbum]]:
         params = {
             "q": track_name,
-            "type": type,
-            "limit": limit if limit > 0 else 1
+            "type": type
         }
+
+        if limit and isinstance(limit, int) and limit > 0:
+            params["limit"] = str(limit)
 
         response = requests.get(
             "https://api.spotify.com/v1/search",
-            headers=headers,
+            headers=self.__search_headers,
             params=params
         )
 
         items = response.json()["tracks"]["items"]
 
-        return items if items else None
+        artists = []
+
+        if items:
+            for item in items:
+                if type is ContentType.TRACK:
+                    artists.append(SpotifyTrack.from_dict(item))
+                elif type is ContentType.ALBUM:
+                    artists.append(SpotifyAlbum.from_dict(item))
+
+        return artists
 
 if __name__ == "__main__":
     with open("response.json", "r", encoding="utf-8") as file:
         track = SpotifyTrack.from_dict(json.loads(file.read()))
 
         file.close()
-
-    print(track.image_url)
