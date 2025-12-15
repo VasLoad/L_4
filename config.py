@@ -23,6 +23,9 @@ URL_QUOTE_REGEX = r"%[0-9A-Fa-f]{2}"
 
 EMPTY_CONTENT_TEXT = "Неизвестно"
 
+HANDLER_ERROR_MESSAGE_TEXT = "Произошла ошибка, попробуйте позже..."
+HANDLER_ERROR_LOGGER_TEXT = "Ошибка в обработчике:"
+
 STORAGE_DIR_PATH = "./storage/"
 
 DATA_DIR_PATH = STORAGE_DIR_PATH + "data/"

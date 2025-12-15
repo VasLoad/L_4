@@ -6,7 +6,7 @@ from services.spotify import SpotifyArtist, SpotifyTrack, SpotifyAlbum, spotify_
 from utils.urls import generate_content_share_url
 
 
-class ContentMessageText(ABC):
+class MessageText(ABC):
     def __init__(
             self,
             container_border_symbol: Optional[str] = "━",
@@ -103,7 +103,7 @@ class ContentMessageText(ABC):
         return border
 
 
-class ContentMessageTextTrack(ContentMessageText):
+class MessageTextTrack(MessageText):
     def __init__(
             self,
             track: SpotifyTrack
@@ -129,7 +129,7 @@ class ContentMessageTextTrack(ContentMessageText):
         return text
 
 
-class ContentMessageTextAlbum(ContentMessageText):
+class MessageTextAlbum(MessageText):
     def __init__(self, album: SpotifyAlbum):
         super().__init__()
 
@@ -154,7 +154,7 @@ class ContentMessageTextAlbum(ContentMessageText):
         return text
 
 
-class ContentMessageTextCommandError(ContentMessageText):
+class MessageTextCommandError(MessageText):
     def __init__(self, command: str, params: tuple):
         super().__init__()
 
@@ -172,3 +172,49 @@ class ContentMessageTextCommandError(ContentMessageText):
             text += f" {param}"
 
         return text
+
+
+class MessageCommandAndArgs:
+    def __init__(self, text: str):
+        self.__text = text
+
+        self.__command: Optional[str] = None
+        self.__args: list[str] = []
+
+        self.__command_only: Optional[bool] = None
+
+        self.__parse()
+
+    @property
+    def text(self) -> str:
+        return self.__text
+
+    @property
+    def command(self) -> Optional[str]:
+        return self.__command
+
+    @property
+    def args(self) -> list[str]:
+        return self.__args
+
+    @property
+    def args_str(self) -> str:
+        return " ".join(self.__args)
+
+    @property
+    def command_only(self) -> Optional[bool]:
+        return self.__command_only
+
+    def __parse(self):
+        parsed = self.__text.split(" ")
+
+        parsed_len = len(parsed)
+
+        if parsed_len > 0:
+            self.__command = parsed.pop(0)
+
+            parsed_len -=1
+
+        self.__args = parsed
+
+        self.__command_only = bool(parsed_len <= 0)
