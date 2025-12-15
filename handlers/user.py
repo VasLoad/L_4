@@ -2,8 +2,9 @@ import binascii
 from typing import Callable, Optional
 
 from aiogram import Router, F
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import Message, BufferedInputFile, ErrorEvent, CallbackQuery
-from aiogram.filters import CommandStart, CommandObject
+from aiogram.filters import CommandStart, CommandObject, Command
 from aiogram.utils.payload import decode_payload
 import logging
 import shutil
@@ -11,12 +12,61 @@ import subprocess
 from pathlib import Path
 
 from callbacks.track import SpotifyTrackCB, SpotifyTrackCBActions
-from config import DOWNLOADS_DIR_PATH, SPOTIFY_TRACK_URL_REGEX
+from config import DOWNLOADS_DIR_PATH, SPOTIFY_TRACK_URL_REGEX, config
 from enums.payload_command import PayloadCommand
-from errors import DownloadError, DownloadedFilesNotFound
+from errors import DownloadError, DownloadedFilesNotFoundError
+from keyboards.album import spotify_album_kb
 from keyboards.track import spotify_track_kb
-from services.spotify import SpotifyClient, SpotifyTrack, SpotifyAlbum
-from utils.download import download_track_spotify, DownloadedTrackFile
+from services.spotify import SpotifyTrack, SpotifyAlbum, spotify_client
+from utils.content_message_text import ContentMessageTextTrack, ContentMessageTextAlbum, ContentMessageTextCommandError
+from utils.downloads import download_track_spotify, DownloadedTrackFile
+
+
+class MessageCommandAndArgs:
+    def __init__(self, text: str):
+        self.__text = text
+
+        self.__command: Optional[str] = None
+        self.__args: list[str] = []
+
+        self.__command_only: Optional[bool] = None
+
+        self.__parse()
+
+    @property
+    def text(self) -> str:
+        return self.__text
+
+    @property
+    def command(self) -> Optional[str]:
+        return self.__command
+
+    @property
+    def args(self) -> list[str]:
+        return self.__args
+
+    @property
+    def args_str(self) -> str:
+        return " ".join(self.__args)
+
+    @property
+    def command_only(self) -> Optional[bool]:
+        return self.__command_only
+
+    def __parse(self):
+        parsed = self.__text.split(" ")
+
+        parsed_len = len(parsed)
+
+        if parsed_len > 0:
+            self.__command = parsed.pop(0)
+
+            parsed_len -=1
+
+        self.__args = parsed
+
+        self.__command_only = bool(parsed_len <= 0)
+
 
 router = Router()
 
@@ -45,18 +95,25 @@ async def handle_deep_link(message: Message, command: CommandObject):
 
         payload_data_len = len(payload_data)
 
-        if payload_command == PayloadCommand.TRACK:
-            if payload_data_len > 0:
+        if payload_data_len > 0:
+            if payload_command == PayloadCommand.TRACK:
                 await search_track_handler(message, payload_data[0])
-    else:
-        await message.reply("Команда не найдена!")
+
+                return
+            elif payload_command == PayloadCommand.ALBUM:
+                await search_album_handler(message, payload_data[0])
+
+                return
+
+    await message.reply("Команда не найдена!")
 
 
 @router.message(CommandStart())
 async def start_handler(message: Message):
     await message.answer(
-        "🎵 *Добро пожаловать!*\n\n"
-        "Просто отправь мне название песни, и я найду информацию о ней."
+        "Привет!"
+        "\nЧтобы получить *информацию о треке*, отправь в чат его *название*!"
+        "\nИли воспользуйся командой /menu"
     )
 
 
@@ -65,9 +122,10 @@ async def process_spotify_track(
         send_audio: Callable,
         send_text: Callable
     ):
-    await send_text(
-        "🔍 Начинаю обработку ссылки Spotify...\n"
-        "⏳ Скачивание трека (это может занять 30–60 секунд)"
+
+    temp_message: Message = await send_text(
+        "⏳ Скачивание трека"
+        "\nЭто может занять некоторое время..."
     )
 
     download_dir = Path(DOWNLOADS_DIR_PATH)
@@ -84,11 +142,13 @@ async def process_spotify_track(
             title=track.title,
             performer="Spotify"
         )
+
+        await temp_message.delete()
     except subprocess.TimeoutExpired:
         await send_text("❌ Скачивание заняло слишком много времени")
     except DownloadError:
         raise
-    except DownloadedFilesNotFound:
+    except DownloadedFilesNotFoundError:
         raise
     finally:
         for item in download_dir.iterdir():
@@ -108,14 +168,15 @@ async def handler_download_track_spotify(message: Message):
         send_audio=message.answer_audio
     )
 
-@router.message(F.text)
-async def search_track_handler(message: Message, track_id: Optional[str] = None):
-    spotify_client = SpotifyClient()
 
+async def search_track_handler(message: Message, query: Optional[str] = None, track_id: Optional[str] = None):
     if track_id:
         tracks: list[SpotifyTrack] = [spotify_client.search_track_by_id(track_id)]
     else:
-        tracks: list[SpotifyTrack] = spotify_client.search_track(message.text, limit=1)
+        if not query:
+            query = message.text
+
+        tracks: list[SpotifyTrack] = spotify_client.search_track(query, limit=1)
 
     for track in tracks:
         if not track:
@@ -133,20 +194,7 @@ async def search_track_handler(message: Message, track_id: Optional[str] = None)
             if index < artists_len - 1:
                 artists_str += "\n"
 
-        text = (
-            f"🎶 *{track.name}* 🎶\n\n"
-
-            f"✨ ━━━━━━━━━━━━━━━━━ ✨\n\n"
-
-            f"🎤 *{'Исполнители' if artists_len > 1 else 'Исполнитель'}:*\n"
-            f"{artists_str}\n\n"
-
-            f"💿 *Альбом:* {track.album.name}\n"
-            f"📅 *Дата релиза:* {track.release_date}\n"
-            f"⏳ *Длительность:* {track.duration}\n\n"
-
-            f"✨ ━━━━━━━━━━━━━━━━━ ✨"
-        )
+        text = ContentMessageTextTrack(track).text
 
         await message.answer_photo(
             photo=track.image_url,
@@ -155,14 +203,14 @@ async def search_track_handler(message: Message, track_id: Optional[str] = None)
         )
 
 
-# @router.message(F.text)
-async def search_album_handler(message: Message, album_id: Optional[str] = None):
-    spotify_client = SpotifyClient()
-
+async def search_album_handler(message: Message, query: Optional[str] = None, album_id: Optional[str] = None):
     if album_id:
         albums: list[SpotifyAlbum] = [spotify_client.search_album_by_id(album_id)]
     else:
-        albums: list[SpotifyAlbum] = spotify_client.search_album(message.text, limit=1)
+        if not query:
+            query = message.text
+
+        albums: list[SpotifyAlbum] = spotify_client.search_album(query, limit=1)
 
     for album in albums:
         if not album:
@@ -180,25 +228,56 @@ async def search_album_handler(message: Message, album_id: Optional[str] = None)
             if index < artists_len - 1:
                 artists_str += "\n"
 
-        text = (
-            f"🎶 *{album.name}* 🎶\n\n"
+        text = ContentMessageTextAlbum(album).text
 
-            f"✨ ━━━━━━━━━━━━━━━━━ ✨\n\n"
-
-            f"🎤 *{'Исполнители' if artists_len > 1 else 'Исполнитель'}:*\n"
-            f"{artists_str}\n\n"
-
-            f"💿 *Альбом:* {album.name}\n"
-            f"📅 *Дата релиза:* {album.release_date}\n"
-            f"⏳ *Треков:* {album.total_tracks}\n\n"
-
-            f"✨ ━━━━━━━━━━━━━━━━━ ✨"
-        )
+        # await message.edit_caption(
+        #     caption=text,
+        #     reply_markup=spotify_album_kb(album)
+        # )
 
         await message.answer_photo(
             photo=album.image_url,
-            caption=text
+            caption=text,
+            reply_markup=spotify_album_kb(album)
         )
+
+
+@router.message(Command("track"))
+async def track_command(message: Message):
+    message_data = MessageCommandAndArgs(message.text)
+
+    if not message_data.command_only:
+        await search_track_handler(message, query=message_data.args_str)
+    else:
+        await message.reply(
+            ContentMessageTextCommandError(
+                "/track",
+                ("<название трека>", "<исполнитель (опционально)>")
+            ).text
+        )
+
+
+@router.message(Command("album"))
+async def track_command(message: Message):
+    message_data = MessageCommandAndArgs(message.text)
+
+    if not message_data.command_only:
+        await search_album_handler(message, query=message_data.args_str)
+    else:
+        await message.reply(
+            ContentMessageTextCommandError(
+                "/album",
+                ("<название альбома>", "<исполнители (опционально)>")
+            ).text
+        )
+
+
+@router.message(F.text)
+async def message_handler(message: Message):
+    if message.text[0] == "/":
+        await message.reply("Команда не найдена.")
+    else:
+        await search_track_handler(message)
 
 
 @router.callback_query(SpotifyTrackCB.filter())
@@ -215,7 +294,10 @@ async def spotify_track_handler(callback: CallbackQuery, callback_data: SpotifyT
                 send_audio=callback.message.answer_audio
             )
 
-    await callback.answer()
+    try:
+        await callback.answer()
+    except TelegramBadRequest:
+        pass
 
 
 @router.errors()

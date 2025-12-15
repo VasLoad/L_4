@@ -1,9 +1,10 @@
+import shutil
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from config import EMPTY_CONTENT_TEXT
-from errors import DownloadError, DownloadedFilesNotFound
+from errors import DownloadError, DownloadedFilesNotFoundError
 
 
 @dataclass
@@ -34,6 +35,12 @@ def download_track_spotify(url: str, output_dir: str) -> DownloadedTrackFile:
 
     download_dir.mkdir(parents=True, exist_ok=True)
 
+    for item in download_dir.iterdir():
+        if item.is_file():
+            item.unlink()
+        else:
+            shutil.rmtree(item)
+
     result = subprocess.run(
         ["spotdl", "download", url, "--output", str(download_dir)],
         capture_output=True,
@@ -47,7 +54,16 @@ def download_track_spotify(url: str, output_dir: str) -> DownloadedTrackFile:
     mp3_files = list(download_dir.glob("*.mp3"))
 
     if not mp3_files:
-        DownloadedFilesNotFound(mp3_files)
+        DownloadedFilesNotFoundError(mp3_files)
+
+    # Обработка бага библиотеки
+    for file in mp3_files:
+        if file.name == "Faceless 1-7 - Download My Conscious.mp3":
+            file.unlink()
+
+            mp3_files.remove(file)
+
+            break
 
     file_path = Path(mp3_files[-1])
 
