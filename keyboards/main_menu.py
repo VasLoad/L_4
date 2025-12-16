@@ -5,8 +5,8 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 
 class MainMenuButtonName(StrEnum):
-    MENU = "📋 Меню"
-    SETTINGS = "⚙️ Настройки"
+    MENU = "📋 Меню 📋"
+    SETTINGS = "⚙️ Настройки ⚙️"
 
 
 def main_menu_kb() -> ReplyKeyboardMarkup:

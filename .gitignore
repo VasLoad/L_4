@@ -4,6 +4,8 @@
 
 storage/
 
+skins/
+
 *.log
 
 *.sqlite

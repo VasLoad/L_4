@@ -1,3 +1,4 @@
+import asyncio
 import shutil
 import subprocess
 from pathlib import Path
@@ -23,14 +24,14 @@ from utils.message_text import ContentMessageTextTrack, ContentMessageTextAlbum,
 router = Router()
 
 
-async def process_spotify_track(
+async def download_spotify_track(
         spotify_url: str,
         send_audio: Callable,
         send_text: Callable
     ):
 
     temp_message: Message = await send_text(
-        "⏳ Скачивание трека"
+        "Скачивание трека"
         "\nЭто может занять некоторое время..."
     )
 
@@ -38,9 +39,10 @@ async def process_spotify_track(
     download_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        track: DownloadedTrackFile = download_track_spotify(
-            spotify_url,
-            str(download_dir)
+        track: DownloadedTrackFile = await asyncio.to_thread(
+            download_track_spotify,
+            url=spotify_url,
+            output_dir=str(download_dir)
         )
 
         await send_audio(
@@ -51,7 +53,7 @@ async def process_spotify_track(
 
         await temp_message.delete()
     except subprocess.TimeoutExpired:
-        await send_text("❌ Скачивание заняло слишком много времени")
+        await send_text("Скачивание заняло слишком много времени")
     except DownloadError:
         raise
     except DownloadedFilesNotFoundError:
@@ -65,10 +67,11 @@ async def process_spotify_track(
 
 
 @router.message(F.text.regexp(SPOTIFY_TRACK_URL_REGEX))
-async def handler_download_track_spotify(message: Message):
-    spotify_url = message.text.strip()
+async def download_track_spotify_handler(message: Message, spotify_url: Optional[str] = None):
+    if not spotify_url:
+        spotify_url = message.text.strip()
 
-    await process_spotify_track(
+    await download_spotify_track(
         spotify_url=spotify_url,
         send_text=message.answer,
         send_audio=message.answer_audio
@@ -86,7 +89,7 @@ async def search_track_handler(message: Message, query: Optional[str] = None, tr
 
     for track in tracks:
         if not track:
-            await message.answer("❌ Песня не найдена")
+            await message.answer("Трек не найден")
 
             continue
 
@@ -137,7 +140,7 @@ async def search_album_handler(
 
     for album in albums:
         if not album:
-            await message.answer("❌ Альбомы не найдены")
+            await message.answer("Альбом не найден")
 
             continue
 
@@ -217,11 +220,13 @@ async def spotify_track_handler(callback: CallbackQuery, callback_data: SpotifyT
         case SpotifyTrackCBActions.ALBUM:
             await search_album_handler(callback.message, user_id=callback.from_user.id, album_id=callback_data.album_id)
         case SpotifyTrackCBActions.DOWNLOAD:
-            await process_spotify_track(
-                spotify_url=spotify_url,
-                send_text=callback.message.answer,
-                send_audio=callback.message.answer_audio
-            )
+            # await download_spotify_track(
+            #     spotify_url=spotify_url,
+            #     send_text=callback.message.answer,
+            #     send_audio=callback.message.answer_audio
+            # )
+
+            await download_track_spotify_handler(callback.message, spotify_url=spotify_url)
 
     try:
         await callback.answer()

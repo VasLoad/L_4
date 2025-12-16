@@ -32,6 +32,13 @@ async def handle_deep_link(message: Message, command: CommandObject):
 
         return
 
+    db_users_repo = UsersRepository(db_sender)
+
+    is_user_registered = db_users_repo.check_user(message.from_user.id)
+
+    if not is_user_registered:
+        register_user(db_sender, message.from_user.id)
+
     try:
         payload = decode_payload(raw_payload)
     except (UnicodeDecodeError, binascii.Error):
