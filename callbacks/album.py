@@ -6,5 +6,5 @@ class SpotifyTrackCBActions(StrEnum):
     DOWNLOAD = "download"
 
 
-class SpotifyTrackCB(CallbackData, prefix="spotify_track"):
+class SpotifyTrackCB(CallbackData, prefix="spotify_album"):
     action: SpotifyTrackCBActions

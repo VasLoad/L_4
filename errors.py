@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Union, Optional
-
 import requests
 
 
@@ -41,25 +40,57 @@ class RemoteError(Exception):
 
 
 class RemoteTimeoutError(RemoteError):
+    """Превышено время ожидания."""
+
     def __init__(self):
         super().__init__("Превышено время ожидания ответа.")
 
 
 class RemoteConnectionError(RemoteError):
+    """Ошибка подключения."""
+
     def __init__(self):
         super().__init__("Ошибка подключения.")
 
 
 class RemoteHTTPError(RemoteError):
+    """Ошибка HTTP-запроса."""
+
     def __init__(self, exception: requests.exceptions.HTTPError):
         super().__init__(f"Ошибка HTTP-запроса.\nКод ошибки: {getattr(exception.response, "status_code")}.\nТекст ошибки: {str(exception)}")
 
 
 class RemoteRequestException(RemoteError):
+    """Ошибка запроса."""
+
     def __init__(self, exception_text: str):
         super().__init__(f"Ошибка запроса.\nТекст ошибки: {exception_text}")
 
 
 class RemoteResponseDataError(RemoteError):
+    """Некорректные данные в ответе."""
+
     def __init__(self, exception_text: str, response: Optional[str] = None):
         super().__init__(f"Сервер вернул некорректные данные.\nТекст ошибки: {exception_text}.{f'\nПолученные данные: {response}.' if response else ''}")
+
+
+class DatabaseError(Exception):
+    """Базовая ошибка базы данных."""
+
+    def __init__(self, text, exception_text: Optional[str]):
+        super().__init__(f"{text}{f'\nТекст ошибки: {exception_text}' if exception_text else ''}")
+
+
+class DatabaseQueryError(DatabaseError):
+    def __init__(self, exception_text: Optional[str] = None):
+        super().__init__("Ошибка выполнения запроса.", exception_text)
+
+
+class DatabaseNotFoundError(DatabaseError):
+    def __init__(self, exception_text: Optional[str] = None):
+        super().__init__("Запрашиваемые данные не найдены.", exception_text)
+
+
+class DatabaseIntegrityError(DatabaseError):
+    def __init__(self, exception_text: Optional[str] = None):
+        super().__init__("Нарушение целостности данных.", exception_text)

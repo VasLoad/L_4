@@ -1,12 +1,20 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
+from enums.command_name import CommandName
 from enums.payload_command import PayloadCommand
 from services.spotify import SpotifyArtist, SpotifyTrack, SpotifyAlbum, spotify_client
 from utils.urls import generate_content_share_url
 
 
 class MessageText(ABC):
+    @property
+    @abstractmethod
+    def text(self) -> str:
+        pass
+
+
+class ContentMessageText(ABC):
     def __init__(
             self,
             container_border_symbol: Optional[str] = "━",
@@ -14,11 +22,6 @@ class MessageText(ABC):
     ):
         self.__container_border_symbol = container_border_symbol
         self.__container_border_len = container_border_len
-
-    @property
-    @abstractmethod
-    def text(self) -> str:
-        pass
 
     @staticmethod
     def artists_text(artists: list[SpotifyArtist]) -> str:
@@ -62,6 +65,15 @@ class MessageText(ABC):
 
         return text
 
+    @property
+    def _border(self) -> str:
+        try:
+            border = self.__container_border_symbol * self.__container_border_len
+        except TypeError:
+            border = ""
+
+        return border
+
     def _container(
             self,
             name: str,
@@ -69,9 +81,9 @@ class MessageText(ABC):
             release_date: str,
             data: tuple
     ) -> str:
-        text = f"*{name}*\n"
+        text = f"*{name}*"
 
-        text += "\n" + f"✨{self.__border}✨\n"
+        text += "\n" + f"\n✨{self._border}✨\n"
 
         text += "\n" + self.artists_text(artists)
 
@@ -80,7 +92,7 @@ class MessageText(ABC):
         for item in data:
             text += "\n" + item
 
-        text += "\n" + f"\n✨{self.__border}✨"
+        text += "\n" + f"\n✨{self._border}✨"
 
         # text = (
         #     name,
@@ -93,17 +105,8 @@ class MessageText(ABC):
 
         return text
 
-    @property
-    def __border(self) -> str:
-        try:
-            border = self.__container_border_symbol * self.__container_border_len
-        except TypeError:
-            border = ""
 
-        return border
-
-
-class MessageTextTrack(MessageText):
+class ContentMessageTextTrack(ContentMessageText):
     def __init__(
             self,
             track: SpotifyTrack
@@ -129,7 +132,7 @@ class MessageTextTrack(MessageText):
         return text
 
 
-class MessageTextAlbum(MessageText):
+class ContentMessageTextAlbum(ContentMessageText):
     def __init__(self, album: SpotifyAlbum):
         super().__init__()
 
@@ -156,8 +159,6 @@ class MessageTextAlbum(MessageText):
 
 class MessageTextCommandError(MessageText):
     def __init__(self, command: str, params: tuple):
-        super().__init__()
-
         self.__command = command
         self.__params = params
 
@@ -170,6 +171,61 @@ class MessageTextCommandError(MessageText):
 
         for param in self.__params:
             text += f" {param}"
+
+        return text
+
+
+class ContentMessageTextMenu(ContentMessageText):
+    def __init__(self):
+        super().__init__()
+
+    @property
+    def text(self) -> str:
+        text = "📋 *Меню* 📋\n"
+
+        text += "\n" + f"{self._border}\n"
+
+        text += "\n" + "Доступные разделы:"
+
+        return text
+
+
+class ContentMessageTextSettings(ContentMessageText):
+    def __init__(self, settings: tuple):
+        super().__init__()
+
+        self.__settings = settings
+
+    @property
+    def text(self) -> str:
+        text = "⚙️ *Настройки* ⚙️\n"
+
+        text += "\n" + f"{self._border}\n"
+
+        for setting in self.__settings:
+            text += "\n" + setting
+
+        text += "\n" + f"\n{self._border}"
+
+        return text
+
+
+class ContentMessageTextHelp(ContentMessageText):
+    def __init__(self, commands: tuple):
+        super().__init__()
+
+        self.__commands = commands
+
+    @property
+    def text(self) -> str:
+        text = "ℹ️ *Помощь по командам* ℹ️\n"
+
+        text += "\n" + f"{self._border}\n"
+
+        for command in self.__commands:
+            text += "\n" + command
+
+        text += "\n" + f"\n{self._border}"
 
         return text
 

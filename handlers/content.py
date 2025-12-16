@@ -10,12 +10,15 @@ from aiogram.types import Message, BufferedInputFile, CallbackQuery
 
 from callbacks.track import SpotifyTrackCB, SpotifyTrackCBActions
 from config import DOWNLOADS_DIR_PATH, SPOTIFY_TRACK_URL_REGEX
+from enums.command_name import CommandName
+from enums.db_settings_param_name import DBSettingsParamName
 from errors import DownloadError, DownloadedFilesNotFoundError
 from keyboards.album import spotify_album_kb
 from keyboards.track import spotify_track_kb
+from services.db import UserSettingsRepository, db_sender
 from services.spotify import SpotifyTrack, SpotifyAlbum, spotify_client
 from utils.downloads import download_track_spotify, DownloadedTrackFile
-from utils.message_text import MessageTextTrack, MessageTextAlbum, MessageTextCommandError, MessageCommandAndArgs
+from utils.message_text import ContentMessageTextTrack, ContentMessageTextAlbum, MessageTextCommandError, MessageCommandAndArgs
 
 router = Router()
 
@@ -97,16 +100,33 @@ async def search_track_handler(message: Message, query: Optional[str] = None, tr
             if index < artists_len - 1:
                 artists_str += "\n"
 
-        text = MessageTextTrack(track).text
+        text = ContentMessageTextTrack(track).text
 
-        await message.answer_photo(
-            photo=track.image_url,
-            caption=text,
-            reply_markup=spotify_track_kb(track)
+        db_user_settings_repo = UserSettingsRepository(db_sender)
+
+        send_information_image: bool = db_user_settings_repo.get_settings_param_value(
+            message.from_user.id,
+            DBSettingsParamName.SEND_INFORMATION_IMAGE
         )
 
+        if send_information_image:
+            await message.answer_photo(
+                photo=track.image_url,
+                caption=text,
+                reply_markup=spotify_track_kb(track)
+            )
+        else:
+            await message.answer(
+                text=text,
+                reply_markup=spotify_track_kb(track)
+            )
 
-async def search_album_handler(message: Message, query: Optional[str] = None, album_id: Optional[str] = None):
+
+async def search_album_handler(
+        message: Message, query: Optional[str] = None,
+        album_id: Optional[str] = None,
+        user_id: Optional[int] = None
+):
     if album_id:
         albums: list[SpotifyAlbum] = [spotify_client.search_album_by_id(album_id)]
     else:
@@ -131,21 +151,35 @@ async def search_album_handler(message: Message, query: Optional[str] = None, al
             if index < artists_len - 1:
                 artists_str += "\n"
 
-        text = MessageTextAlbum(album).text
+        text = ContentMessageTextAlbum(album).text
 
         # await message.edit_caption(
         #     caption=text,
         #     reply_markup=spotify_album_kb(album)
         # )
 
-        await message.answer_photo(
-            photo=album.image_url,
-            caption=text,
-            reply_markup=spotify_album_kb(album)
+        db_settings_repo = UserSettingsRepository(db_sender)
+
+        send_information_image: bool = db_settings_repo.get_settings_param_value(
+            user_id if user_id else message.from_user.id,
+            DBSettingsParamName.SEND_INFORMATION_IMAGE
         )
 
+        if send_information_image:
+            await message.answer_photo(
+                photo=album.image_url,
+                caption=text,
+                reply_markup=spotify_album_kb(album)
+            )
+        else:
+            await message.answer(
+                text=text,
+                reply_markup=spotify_album_kb(album),
+                disable_web_page_preview=True
+            )
 
-@router.message(Command("track"))
+
+@router.message(Command(CommandName.TRACK))
 async def track_command(message: Message):
     message_data = MessageCommandAndArgs(message.text)
 
@@ -154,13 +188,13 @@ async def track_command(message: Message):
     else:
         await message.reply(
             MessageTextCommandError(
-                "/track",
-                ("<название трека>", "<исполнитель (опционально)>")
+                f"/{CommandName.TRACK}",
+                ("<название трека>", "<другие параметры (опционально)>")
             ).text
         )
 
 
-@router.message(Command("album"))
+@router.message(Command(CommandName.ALBUM))
 async def track_command(message: Message):
     message_data = MessageCommandAndArgs(message.text)
 
@@ -169,7 +203,7 @@ async def track_command(message: Message):
     else:
         await message.reply(
             MessageTextCommandError(
-                "/album",
+                f"/{CommandName.ALBUM}",
                 ("<название альбома>", "<исполнители (опционально)>")
             ).text
         )
@@ -181,7 +215,7 @@ async def spotify_track_handler(callback: CallbackQuery, callback_data: SpotifyT
 
     match callback_data.action:
         case SpotifyTrackCBActions.ALBUM:
-            await search_album_handler(callback.message, album_id=callback_data.album_id)
+            await search_album_handler(callback.message, user_id=callback.from_user.id, album_id=callback_data.album_id)
         case SpotifyTrackCBActions.DOWNLOAD:
             await process_spotify_track(
                 spotify_url=spotify_url,

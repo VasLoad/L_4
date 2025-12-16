@@ -5,7 +5,7 @@ from typing import Any, Optional, Union
 import base64
 from propcache import cached_property
 
-from config import EMPTY_CONTENT_TEXT, config
+from config import EMPTY_CONTENT_TEXT, config, EMPTY_CONTENT_URL, EMPTY_CONTENT_ID
 from enums.content_type import ContentType
 from enums.request_type import RequestType
 from errors import RemoteResponseDataError
@@ -16,29 +16,29 @@ from utils.time import convert_time_from_milliseconds
 class SpotifyImage:
     height: Union[int, str] = 0
     width: Union[int, str] = 0
-    url: str = EMPTY_CONTENT_TEXT
+    url: str = EMPTY_CONTENT_URL
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "SpotifyImage":
         return cls(
-            height=data.get("height"),
-            width=data.get("width"),
-            url=data.get("url")
+            height=data.get("height", 0),
+            width=data.get("width", 0),
+            url=data.get("url", EMPTY_CONTENT_URL)
         )
 
 
 @dataclass
 class SpotifyArtist:
-    url: str = EMPTY_CONTENT_TEXT
-    id: str = EMPTY_CONTENT_TEXT
+    url: str = EMPTY_CONTENT_URL
+    id: str = EMPTY_CONTENT_ID
     name: str = EMPTY_CONTENT_TEXT
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "SpotifyArtist":
         return cls(
-            url=data.get("url"),
-            id=data.get("id"),
-            name=data.get("name")
+            url=data.get("url", EMPTY_CONTENT_URL),
+            id=data.get("id", EMPTY_CONTENT_ID),
+            name=data.get("name", EMPTY_CONTENT_TEXT)
         )
 
 
@@ -46,10 +46,10 @@ class SpotifyArtist:
 class SpotifyAlbum:
     album_type: str = EMPTY_CONTENT_TEXT
     artists: list[SpotifyArtist] = field(default_factory=list)
-    url: str = EMPTY_CONTENT_TEXT
-    id: str = EMPTY_CONTENT_TEXT
+    url: str = EMPTY_CONTENT_URL
+    id: str = EMPTY_CONTENT_ID
     images: list[SpotifyImage] = field(default_factory=list)
-    is_playable: bool = field(default_factory=bool)
+    is_playable: bool = False
     name: str = EMPTY_CONTENT_TEXT
     release_date: str = EMPTY_CONTENT_TEXT
     total_tracks: Union[int, str] = 0
@@ -64,26 +64,26 @@ class SpotifyAlbum:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "SpotifyAlbum":
         return cls(
-            album_type=data.get("album_type"),
+            album_type=data.get("album_type", EMPTY_CONTENT_TEXT),
             artists=[SpotifyArtist.from_dict(artist) for artist in data.get("artists", [])],
-            url=data.get("external_urls", {}).get("spotify"),
-            id=data.get("id"),
+            url=data.get("external_urls", {}).get("spotify", EMPTY_CONTENT_URL),
+            id=data.get("id", EMPTY_CONTENT_ID),
             images=[SpotifyImage.from_dict(image) for image in data.get("images", [])],
-            is_playable=data.get("is_playable"),
-            name=data.get("name"),
-            release_date=data.get("release_date"),
-            total_tracks=data.get("total_tracks")
+            is_playable=data.get("is_playable", False),
+            name=data.get("name", EMPTY_CONTENT_TEXT),
+            release_date=data.get("release_date", EMPTY_CONTENT_TEXT),
+            total_tracks=data.get("total_tracks", EMPTY_CONTENT_TEXT)
         )
 
 
 @dataclass
 class SpotifyTrack:
-    id: str = ""
+    id: str = EMPTY_CONTENT_ID
     name: str = EMPTY_CONTENT_TEXT
     artists: list[SpotifyArtist] = field(default_factory=list)
     album: SpotifyAlbum = field(default_factory=SpotifyAlbum)
     duration_ms: Union[int, str] = 0
-    url: str = EMPTY_CONTENT_TEXT
+    url: str = EMPTY_CONTENT_URL
 
     @property
     def duration(self) -> str:
@@ -109,12 +109,12 @@ class SpotifyTrack:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "SpotifyTrack":
         return cls(
-            id=data.get("id"),
-            name=data.get("name"),
+            id=data.get("id", EMPTY_CONTENT_ID),
+            name=data.get("name", EMPTY_CONTENT_TEXT),
             artists=[SpotifyArtist.from_dict(artist) for artist in data.get("artists", [])],
             album=SpotifyAlbum.from_dict(data.get("album", {})),
-            duration_ms=data.get("duration_ms"),
-            url=data.get("external_urls", {}).get("spotify")
+            duration_ms=data.get("duration_ms", 0),
+            url=data.get("external_urls", {}).get("spotify", EMPTY_CONTENT_URL)
         )
 
 class SpotifyClient:

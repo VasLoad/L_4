@@ -993,3 +993,266 @@ TypeError: can't multiply sequence by non-int of type 'NoneType'
 2025-12-15 22:24:33,992 - aiogram.dispatcher - ERROR - Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
 2025-12-15 22:25:17,552 - aiogram.dispatcher - ERROR - Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
 2025-12-15 22:29:19,293 - aiogram.dispatcher - ERROR - Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+2025-12-16 00:01:43,032 - services.db - ERROR - unable to open database file
+Traceback (most recent call last):
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 35, in execute
+    conn = sqlite3.connect(self.db_path)
+sqlite3.OperationalError: unable to open database file
+2025-12-16 00:03:57,274 - services.db - ERROR - unable to open database file
+Traceback (most recent call last):
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 38, in execute
+    conn = sqlite3.connect(self.__db_path)
+sqlite3.OperationalError: unable to open database file
+2025-12-16 00:05:10,801 - services.db - ERROR - unable to open database file
+Traceback (most recent call last):
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 38, in execute
+    conn = sqlite3.connect(self.__db_path)
+sqlite3.OperationalError: unable to open database file
+2025-12-16 00:05:23,639 - services.db - ERROR - unable to open database file
+Traceback (most recent call last):
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 38, in execute
+    conn = sqlite3.connect(self.__db_path)
+sqlite3.OperationalError: unable to open database file
+2025-12-16 00:05:38,134 - services.db - ERROR - unable to open database file
+Traceback (most recent call last):
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 38, in execute
+    conn = sqlite3.connect(self.__db_path)
+sqlite3.OperationalError: unable to open database file
+2025-12-16 01:09:44,982 - aiogram.dispatcher - ERROR - Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+2025-12-16 01:09:49,016 - services.db - ERROR - no such column: show_information_image
+Traceback (most recent call last):
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 43, in execute
+    cursor.execute(query, tuple(params))
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: show_information_image
+2025-12-16 01:09:49,472 - handlers.errors - ERROR - Ошибка в обработчике:
+Traceback (most recent call last):
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 43, in execute
+    cursor.execute(query, tuple(params))
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: show_information_image
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 27, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 58, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\fsm\middleware.py", line 43, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 126, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 283, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 161, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 153, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 189, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 161, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 153, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 181, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 126, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\handlers\user.py", line 52, in start_handler
+    is_user_registered = UsersRepository(db_sender).check_user(message.from_user.id)
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 114, in check_user
+    result = self._sender.execute(
+        query=query,
+        params=[user_id],
+        commit=True,
+    )
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 65, in execute
+    raise DatabaseQueryError(str(ex))
+errors.DatabaseQueryError: Ошибка выполнения запроса.
+Текст ошибки: no such column: show_information_image
+2025-12-16 01:09:59,237 - aiogram.dispatcher - ERROR - Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+2025-12-16 01:10:01,562 - aiogram.dispatcher - INFO - Start polling
+2025-12-16 01:10:01,733 - aiogram.dispatcher - INFO - Run polling for bot @TrackStarInfo_bot id=8476398935 - 'TrackStar'
+2025-12-16 01:10:01,956 - services.db - ERROR - no such column: show_information_image
+Traceback (most recent call last):
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 43, in execute
+    cursor.execute(query, tuple(params))
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: show_information_image
+2025-12-16 01:10:02,395 - handlers.errors - ERROR - Ошибка в обработчике:
+Traceback (most recent call last):
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 43, in execute
+    cursor.execute(query, tuple(params))
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: show_information_image
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 27, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 58, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\fsm\middleware.py", line 43, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 126, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 283, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 161, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 153, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 189, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 161, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 153, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 181, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 126, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\handlers\user.py", line 52, in start_handler
+    is_user_registered = UsersRepository(db_sender).check_user(message.from_user.id)
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 114, in check_user
+    result = self._sender.execute(
+        query=query,
+        params=[user_id],
+        commit=True,
+    )
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 65, in execute
+    raise DatabaseQueryError(str(ex))
+errors.DatabaseQueryError: Ошибка выполнения запроса.
+Текст ошибки: no such column: show_information_image
+2025-12-16 01:10:02,398 - aiogram.event - INFO - Update id=584022817 is handled. Duration 444 ms by bot id=8476398935
+2025-12-16 01:10:07,137 - services.db - ERROR - no such column: show_information_image
+Traceback (most recent call last):
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 43, in execute
+    cursor.execute(query, tuple(params))
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: show_information_image
+2025-12-16 01:10:07,231 - handlers.errors - ERROR - Ошибка в обработчике:
+Traceback (most recent call last):
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 43, in execute
+    cursor.execute(query, tuple(params))
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: show_information_image
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 27, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 58, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\fsm\middleware.py", line 43, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 126, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 283, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 161, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 153, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 189, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 161, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 153, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 181, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 126, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\.venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\handlers\user.py", line 52, in start_handler
+    is_user_registered = UsersRepository(db_sender).check_user(message.from_user.id)
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 114, in check_user
+    result = self._sender.execute(
+        query=query,
+        params=[user_id],
+        commit=True,
+    )
+  File "D:\Python\PyCharm\Projects\Learn\AP\L_4\services\db.py", line 65, in execute
+    raise DatabaseQueryError(str(ex))
+errors.DatabaseQueryError: Ошибка выполнения запроса.
+Текст ошибки: no such column: show_information_image
+2025-12-16 01:10:07,232 - aiogram.event - INFO - Update id=584022818 is handled. Duration 96 ms by bot id=8476398935
+2025-12-16 01:10:14,411 - aiogram.dispatcher - INFO - Polling stopped
+2025-12-16 01:10:14,412 - aiogram.dispatcher - ERROR - Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+2025-12-16 01:10:14,412 - aiogram.dispatcher - WARNING - Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8476398935)
+2025-12-16 01:10:14,665 - aiogram.dispatcher - INFO - Polling stopped for bot @TrackStarInfo_bot id=8476398935 - 'TrackStar'

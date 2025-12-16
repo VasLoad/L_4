@@ -22,6 +22,8 @@ SPOTIFY_TRACK_URL_REGEX = r"https?://open\.spotify\.com/track/"
 URL_QUOTE_REGEX = r"%[0-9A-Fa-f]{2}"
 
 EMPTY_CONTENT_TEXT = "Неизвестно"
+EMPTY_CONTENT_ID = "0"
+EMPTY_CONTENT_URL = "https://t.me/TrackStarInfo_bot"
 
 HANDLER_ERROR_MESSAGE_TEXT = "Произошла ошибка, попробуйте позже..."
 HANDLER_ERROR_LOGGER_TEXT = "Ошибка в обработчике:"
@@ -37,3 +39,13 @@ DOWNLOADS_DIR_PATH = TEMP_DIR_PATH + "downloads/"
 LOGS_DIR_PATH = DATA_DIR_PATH + "logs/"
 
 LOGS_FILE_PATH = LOGS_DIR_PATH + "logs.log"
+
+DB_DIR_PATH = DATA_DIR_PATH + "db/"
+
+DB_FILE_PATH = DB_DIR_PATH + "db.sqlite"
+
+SETTINGS_PARAM_VALUE_TRUE_FALSE_TEXT_DICT = {
+    True: "✅",
+    False: "❌",
+    None: "?"
+}
