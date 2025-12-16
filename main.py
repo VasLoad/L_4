@@ -28,13 +28,13 @@ if __name__ == "__main__":
 
     logs_dir_path.mkdir(parents=True, exist_ok=True)
 
-    # logging.basicConfig(
-    #     level=logging.ERROR,
-    #     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    #     handlers=[
-    #         logging.FileHandler(LOGS_FILE_PATH, encoding="utf-8")
-    #     ]
-    # )
+    logging.basicConfig(
+        level=logging.ERROR,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(LOGS_FILE_PATH, encoding="utf-8")
+        ]
+    )
 
     UsersRepository(db_sender).create_table()
     UserSettingsRepository(db_sender).create_table()
