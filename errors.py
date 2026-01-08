@@ -30,7 +30,7 @@ class DownloadedFilesNotFoundError(DownloadsError):
             if index < file_paths_len - 1:
                 file_paths_str += ", "
 
-        super().__init__(f"Скачанные файлы не найдены: {file_paths_str}.")
+        super().__init__(f"Скачанные файлы не найдены{f': {file_paths_str}' if file_paths_str else ''}.")
 
 
 class RemoteError(Exception):
