@@ -54,7 +54,7 @@ def download_track_spotify(url: str, output_dir: str) -> DownloadedTrackFile:
     mp3_files = list(download_dir.glob("*.mp3"))
 
     if not mp3_files:
-        DownloadedFilesNotFoundError(mp3_files)
+        raise DownloadedFilesNotFoundError(mp3_files)
 
     # Обработка бага библиотеки
     for file in mp3_files:
